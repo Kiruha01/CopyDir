@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>409</width>
+    <height>503</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QTreeWidget" name="treeWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>10</y>
+     <width>321</width>
+     <height>471</height>
+    </rect>
+   </property>
+   <property name="columnCount">
+    <number>1</number>
+   </property>
+   <column>
+    <property name="text">
+     <string>Новая папка</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>Folder.ico</normaloff>Folder.ico</iconset>
+    </property>
+   </column>
+   <item>
+    <property name="text">
+     <string>фотка.png</string>
+    </property>
+    <property name="background">
+     <brush brushstyle="SolidPattern">
+      <color alpha="255">
+       <red>255</red>
+       <green>0</green>
+       <blue>0</blue>
+      </color>
+     </brush>
+    </property>
+    <property name="checkState">
+     <enum>Checked</enum>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>Picture.ico</normaloff>Picture.ico</iconset>
+    </property>
+    <property name="flags">
+     <set>ItemIsUserCheckable|ItemIsEnabled</set>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>видео.mp4</string>
+    </property>
+    <property name="background">
+     <brush brushstyle="SolidPattern">
+      <color alpha="255">
+       <red>0</red>
+       <green>255</green>
+       <blue>0</blue>
+      </color>
+     </brush>
+    </property>
+    <property name="checkState">
+     <enum>Checked</enum>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>AVI.ico</normaloff>AVI.ico</iconset>
+    </property>
+    <property name="flags">
+     <set>ItemIsUserCheckable|ItemIsEnabled</set>
+    </property>
+   </item>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
