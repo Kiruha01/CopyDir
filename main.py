@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-from form02 import Ui_Form  # импорт нашего сгенерированного файла
+from form import Ui_Form  # импорт нашего сгенерированного файла
 import sys
 from PyQt5.QtWidgets import QTreeWidgetItem
 from PyQt5.QtGui import QIcon
@@ -21,9 +21,9 @@ class Item:
 
         self.color = QtGui.QColor(255, 255, 255)
         if num == 1:
-            self.color = QtGui.QColor(0, 255, 0)
+            self.color = QtGui.QColor(100, 255, 100)
         elif num == 2:
-            self.color = QtGui.QColor(255, 0, 0)
+            self.color = QtGui.QColor(255, 100, 100)
 
         if os.path.isdir(path):
             self.type = 'icos\\folder.ico'
@@ -50,7 +50,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.__compareFiles("C:\\Users\\liss-\\Desktop\\dist", "C:\\Users\\liss-\\Desktop\\dist2", self.tree)
         #self.load_project_structure("D:\\script\\findFile", self.tree)
 
-        self.ui.okbut.clicked.connect(self.check_files)
+        ##self.ui.okbut.clicked.connect(self.check_files)
 
 
 
