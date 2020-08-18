@@ -86,7 +86,9 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.openSource.clicked.connect(self.openSourceDialog)
         self.ui.next.clicked.connect(self.page2)
 
+
     def page2(self):
+        self.statusBar().showMessage('Завершено')
         if self.ui.TargetPath.text() and self.ui.Sourcepath.text():
             if self.ui.TargetPath.text() == self.ui.Sourcepath.text():
                 QMessageBox.warning(self, "Одно и то же", "Целевая и исходная папки не должны совпадать!")
@@ -108,6 +110,7 @@ class mywindow(QtWidgets.QMainWindow):
 
 
     def checkFiles(self):
+        self.statusBar().showMessage('Идёт процесс сканирования...')
         listOfCopy = []
         def recursiveCheck(parent, path):
             for idx in range(parent.childCount()):
@@ -137,14 +140,19 @@ class mywindow(QtWidgets.QMainWindow):
         self.thread.started.connect(self.coping.run)
         # запустим поток
         self.thread.start()
+        self.ui.okbut.setEnabled(False)
+        self.ui.treeWidget.setEnabled(False)
+        self.statusBar().showMessage('Идёт процесс копирования...')
 
 
     def finish(self):
+        self.statusBar().showMessage('Завершено!')
         print("Copied!")
 
 
 
     def __compareFiles(self, sourceDir, targetDir, parent):
+        
         """ sourceDir: исходный корень исследования
             targetDir: целевой корень исследования
             parent:    родитель элемента
@@ -152,9 +160,11 @@ class mywindow(QtWidgets.QMainWindow):
         """
 
         changes = False # флаг на изменения 
-
-        sourceFiles = os.listdir(sourceDir)
-        targetFiles = os.listdir(targetDir)
+        try:
+            sourceFiles = os.listdir(sourceDir)
+            targetFiles = os.listdir(targetDir)
+        except PermissionError:
+            return False
 
         for f in targetFiles:
             if f in sourceFiles:
@@ -196,7 +206,11 @@ class mywindow(QtWidgets.QMainWindow):
 
 
     def loadAll(self, startpath, tree, num):
-        for element in os.listdir(startpath):
+        try:
+            ld = os.listdir(startpath)
+        except PermissionError:
+            return
+        for element in ld:
             path_info = os.path.join(startpath, element)
             parent_itm = self.__addfile(Item(path_info, num), tree)
             if os.path.isdir(path_info):
