@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from form import Ui_Form  # импорт нашего сгенерированного файла
 import sys
-from PyQt5.QtWidgets import QTreeWidgetItem
+from PyQt5.QtWidgets import QTreeWidgetItem, QFileDialog, QMessageBox
 from PyQt5.QtGui import QIcon
 import os
 
@@ -40,6 +40,35 @@ class Item:
             self.type = 'icos\\file.ico'
 
 
+
+class ClassCopyFiles(QtCore.QObject):
+    running = False
+    done = QtCore.pyqtSignal()
+    
+    def __init__(self, listOfCopy, sourceDir, targetDir):
+        super(ClassCopyFiles, self).__init__()
+        self.listOfCopy = listOfCopy
+        self.sourceDir = sourceDir
+        self.targetDir = targetDir
+ 
+    # метод, который будет выполнять алгоритм в другом потоке
+    def run(self):
+        from shutil import copy2
+        for file in self.listOfCopy:
+            if file.root == self.sourceDir:
+                if os.path.isdir(os.path.join(file.root, file.path)):
+                    os.makedirs(os.path.join(self.targetDir, file.path))
+                else:
+                    if not os.path.exists(os.path.dirname(os.path.join(self.targetDir, file.path))):
+                        os.makedirs(os.path.dirname(os.path.join(self.targetDir, file.path)))
+                    copy2(os.path.join(file.root, file.path), os.path.join(self.targetDir, file.path))
+            elif file.root == self.targetDir:
+                if os.path.isdir(os.path.join(file.root, file.path)):
+                    os.rmdir(os.path.join(file.root, file.path))
+                else:
+                    os.remove(os.path.join(file.root, file.path))
+        self.done.emit()
+
  
 class mywindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -50,36 +79,67 @@ class mywindow(QtWidgets.QMainWindow):
         self.tree = QTreeWidgetItem(self.ui.treeWidget, ['main'])
         self.tree.setExpanded(True)
 
-        self.__compareFiles(self.getSource(), self.getTarget(), self.tree)
+        
 
         self.ui.okbut.clicked.connect(self.checkFiles)
+        self.ui.openTarget.clicked.connect(self.openTargetDialog)
+        self.ui.openSource.clicked.connect(self.openSourceDialog)
+        self.ui.next.clicked.connect(self.page2)
+
+    def page2(self):
+        if self.ui.TargetPath.text() and self.ui.Sourcepath.text():
+            if self.ui.TargetPath.text() == self.ui.Sourcepath.text():
+                QMessageBox.warning(self, "Одно и то же", "Целевая и исходная папки не должны совпадать!")
+                return 
+            self.tree.setText(0, os.path.basename(self.ui.TargetPath.text()))
+            self.tree.setIcon(0,  QIcon('icos\\folder.ico'))
+            self.ui.stackedWidget.setCurrentIndex(1)
+            self.__compareFiles(self.getSource(), self.getTarget(), self.tree)
+        else:
+            QMessageBox.warning(self, "Нет папок", "Пожалуйста, выберите целевую и исходную папки!")
 
 
     def getTarget(self):
-        return "C:\\Users\\liss-\\Desktop\\dist2"
+        #print(os.path.abspath(self.ui.TargetPath.text()))
+        return os.path.abspath(self.ui.TargetPath.text())
 
     def getSource(self):
-        return "C:\\Users\\liss-\\Desktop\\dist"
+        return os.path.abspath(self.ui.Sourcepath.text())
 
 
     def checkFiles(self):
         listOfCopy = []
         def recursiveCheck(parent, path):
             for idx in range(parent.childCount()):
-                if parent.child(idx).childCount() == 0 and parent.child(idx).checkState(0) == 2:
-                    if parent.child(idx).background(0) == QtGui.QColor(100, 255, 100):
+                if parent.child(idx).childCount() == 0:
+                    if parent.child(idx).background(0) == QtGui.QColor(100, 255, 100) and parent.child(idx).checkState(0) == 0:
                         listOfCopy.append(Item(os.path.join(path, parent.child(idx).text(0)), 1, self.getSource, self.getTarget))
-                    elif parent.child(idx).background(0) == QtGui.QColor(255, 100, 100):
+                    elif parent.child(idx).background(0) == QtGui.QColor(255, 100, 100) and parent.child(idx).checkState(0) == 2:
                         listOfCopy.append(Item(os.path.join(path, parent.child(idx).text(0)), 2, self.getSource, self.getTarget))
                 else:
                     recursiveCheck(parent.child(idx), os.path.join(path, parent.child(idx).text(0)))
         recursiveCheck(self.tree, '')
-
+        for x in listOfCopy:
+            print(x.path)
         self.copyFiles(listOfCopy)
 
 
 
     def copyFiles(self, listOfFiles):
+        self.thread = QtCore.QThread()
+        # создадим объект для выполнения кода в другом потоке
+        self.coping = ClassCopyFiles(listOfFiles, self.getSource(), self.getTarget())
+        # перенесём объект в другой поток
+        self.coping.moveToThread(self.thread)
+        # после чего подключим все сигналы и слоты
+        self.coping.done.connect(self.finish)
+        # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
+        self.thread.started.connect(self.coping.run)
+        # запустим поток
+        self.thread.start()
+
+
+    def finish(self):
         print("Copied!")
 
 
@@ -141,6 +201,16 @@ class mywindow(QtWidgets.QMainWindow):
             parent_itm = self.__addfile(Item(path_info, num), tree)
             if os.path.isdir(path_info):
                 self.loadAll(path_info, parent_itm, num)
+
+
+
+    def openTargetDialog(self):
+        fname = QFileDialog.getExistingDirectory(self, 'Выбор целевой папки', os.getcwd())
+        self.ui.TargetPath.setText(fname)
+
+    def openSourceDialog(self):
+        fname = QFileDialog.getExistingDirectory(self, 'Выбор исходной папки', os.getcwd())
+        self.ui.Sourcepath.setText(fname)
 
 
  

@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
-    <height>554</height>
+    <width>746</width>
+    <height>687</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>746</width>
+    <height>687</height>
+   </size>
   </property>
   <property name="font">
    <font>
@@ -18,31 +24,187 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTreeWidget" name="treeWidget">
+  <widget class="QStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>561</width>
-     <height>421</height>
+     <x>11</x>
+     <y>11</y>
+     <width>731</width>
+     <height>671</height>
     </rect>
    </property>
-   <property name="sortingEnabled">
-    <bool>true</bool>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+    </font>
    </property>
-  </widget>
-  <widget class="QPushButton" name="okbut">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>490</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
+   <property name="currentIndex">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string>ok</string>
-   </property>
+   <widget class="QWidget" name="page">
+    <widget class="QLineEdit" name="Sourcepath">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>180</y>
+       <width>351</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="next">
+     <property name="geometry">
+      <rect>
+       <x>620</x>
+       <y>620</y>
+       <width>93</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>93</width>
+       <height>28</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>next</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="openSource">
+     <property name="geometry">
+      <rect>
+       <x>460</x>
+       <y>180</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Выбор исходной папки</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="TargetPath">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>250</y>
+       <width>351</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="openTarget">
+     <property name="geometry">
+      <rect>
+       <x>460</x>
+       <y>250</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Выбор целевой папки</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>651</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="plainText">
+      <string>Эта утилита предназначена для копирования недостающих файлов из исходной папки в целевую.
+
+! Если папки большие, программа не будет отвечать, но она работает. Не закрывайте ёё !</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_2">
+    <widget class="QTreeWidget" name="treeWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>120</y>
+       <width>701</width>
+       <height>401</height>
+      </rect>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+     <column>
+      <property name="text">
+       <string>Имя</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QPushButton" name="okbut">
+     <property name="geometry">
+      <rect>
+       <x>610</x>
+       <y>610</y>
+       <width>93</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ok</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="plainTextEdit_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>701</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <property name="plainText">
+      <string>Красным цветом обозначены файлы, которых нет в целевой папке, но есть в исходной
+
+Зелёным цветом обозначены файлы, которые есть в целевой папке, но нет в исходной</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>550</y>
+       <width>711</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Выберете галочкой файлы, которые необходимо оставить в целевой папке и нажмите ok</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <resources/>
