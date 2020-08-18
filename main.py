@@ -86,6 +86,8 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.openSource.clicked.connect(self.openSourceDialog)
         self.ui.next.clicked.connect(self.page2)
 
+        self.ui.treeWidget.itemDoubleClicked.connect(self.foo)
+
 
     def page2(self):
         self.statusBar().showMessage('Завершено')
@@ -165,6 +167,8 @@ class mywindow(QtWidgets.QMainWindow):
             targetFiles = os.listdir(targetDir)
         except PermissionError:
             return False
+        except  FileNotFoundError:
+            return False
 
         for f in targetFiles:
             if f in sourceFiles:
@@ -203,12 +207,36 @@ class mywindow(QtWidgets.QMainWindow):
         item.setExpanded(True)
         return item
 
+    def foo(self, item, col):
+        if item.checkState(col) == 0:
+            item.setCheckState(col, 2)
+            lst = [item.child(x) for x in range(item.childCount())]
+            while len(lst):
+                lst[0].setCheckState(col, 2)
+                if lst[0].childCount() > 0:
+                    lst.extend([lst[0].child(x) for x in range(lst[0].childCount())])
+                lst.pop(0)
+
+        elif item.checkState(col) == 2:
+            item.setCheckState(col, 0)
+            lst = [item.child(x) for x in range(item.childCount())]
+            while len(lst):
+                lst[0].setCheckState(col, 0)
+                if lst[0].childCount() > 0:
+                    lst.extend([lst[0].child(x) for x in range(lst[0].childCount())])
+                lst.pop(0)
+
+        
+
+
 
 
     def loadAll(self, startpath, tree, num):
         try:
             ld = os.listdir(startpath)
         except PermissionError:
+            return
+        except  FileNotFoundError:
             return
         for element in ld:
             path_info = os.path.join(startpath, element)
