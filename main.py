@@ -7,7 +7,7 @@ import os
 
 
 class Item:
-    def __init__(self, path, num=0):
+    def __init__(self, path, num=0, getSource=lambda : "", getTarget=lambda: ""):
         """ root: корневая директория исследование
             path : путь к файлу
 
@@ -20,10 +20,13 @@ class Item:
         self.name = os.path.basename(path)
 
         self.color = QtGui.QColor(255, 255, 255)
+        self.root = getSource()
         if num == 1:
             self.color = QtGui.QColor(100, 255, 100)
+            self.root = getTarget()
         elif num == 2:
             self.color = QtGui.QColor(255, 100, 100)
+
 
         if os.path.isdir(path):
             self.type = 'icos\\folder.ico'
@@ -47,10 +50,29 @@ class mywindow(QtWidgets.QMainWindow):
         self.tree = QTreeWidgetItem(self.ui.treeWidget, ['main'])
         self.tree.setExpanded(True)
 
-        self.__compareFiles("C:\\Users\\liss-\\Desktop\\dist", "C:\\Users\\liss-\\Desktop\\dist2", self.tree)
-        #self.load_project_structure("D:\\script\\findFile", self.tree)
+        self.__compareFiles(self.getSource(), self.getTarget(), self.tree)
 
-        ##self.ui.okbut.clicked.connect(self.check_files)
+        self.ui.okbut.clicked.connect(self.checkFiles)
+
+
+    def getTarget(self):
+        return "C:\\Users\\liss-\\Desktop\\dist2"
+
+    def getSource(self):
+        return "C:\\Users\\liss-\\Desktop\\dist"
+
+
+    def checkFiles(self):
+        listOfCopy = []
+        def recursiveCheck(parent, path):
+            for idx in range(parent.childCount()):
+                if parent.child(idx).childCount() == 0:
+                    if parent.child(idx).background(0) == QtGui.QColor(100, 255, 100):
+                        listOfCopy
+                    print(os.path.join(path, parent.child(idx).text(0)), parent.background(0))
+                else:
+                    recursiveCheck(parent.child(idx), os.path.join(path, parent.child(idx).text(0)))
+        recursiveCheck(self.tree, '')
 
 
 
@@ -69,23 +91,23 @@ class mywindow(QtWidgets.QMainWindow):
         for f in targetFiles:
             if f in sourceFiles:
                 if os.path.isdir(targetDir + '\\' + f):
-                    item = self.__addfile(Item(targetDir + '\\' + f), parent)                     # добавим папку на всякий случай
+                    item = self.__addfile(Item(os.path.join(targetDir, f)), parent)                     # добавим папку на всякий случай
                     changes = True
-                    if not self.__compareFiles(sourceDir + '\\' + f, targetDir + '\\' + f, item): # а если там нет изменений
+                    if not self.__compareFiles(os.path.join(sourceDir, f), os.path.join(targetDir, f), item): # а если там нет изменений
                         parent.removeChild(item) 
                         print(item.text(0))                             # то удаляем нахер эту грёбанную папку!
                         changes = False
                 sourceFiles.remove(f)
             else:
-                item = self.__addfile(Item(targetDir + '\\' + f, 1), parent)
-                if os.path.isdir(targetDir + '\\' + f):
-                    self.loadAll(targetDir + '\\' + f, item, 1)
+                item = self.__addfile(Item(os.path.join(targetDir, f), 1), parent)
+                if os.path.isdir(os.path.join(targetDir, f)):
+                    self.loadAll(os.path.join(targetDir, f), item, 1)
                 changes = True
                 
         for f in sourceFiles:
-            item = self.__addfile(Item(sourceDir + '\\' + f, 2), parent)
-            if os.path.isdir(sourceDir + '\\' + f):
-                    self.loadAll(sourceDir + '\\' + f, item, 2)
+            item = self.__addfile(Item(os.path.join(sourceDir, f), 2), parent)
+            if os.path.isdir(os.path.join(sourceDir, f)):
+                    self.loadAll(os.path.join(sourceDir, f), item, 2)
             changes = True
         return changes
 
@@ -108,7 +130,7 @@ class mywindow(QtWidgets.QMainWindow):
 
     def loadAll(self, startpath, tree, num):
         for element in os.listdir(startpath):
-            path_info = startpath + "/" + element
+            path_info = os.path.join(startpath, element)
             parent_itm = self.__addfile(Item(path_info, num), tree)
             if os.path.isdir(path_info):
                 self.loadAll(path_info, parent_itm, num)
