@@ -66,13 +66,21 @@ class mywindow(QtWidgets.QMainWindow):
         listOfCopy = []
         def recursiveCheck(parent, path):
             for idx in range(parent.childCount()):
-                if parent.child(idx).childCount() == 0:
+                if parent.child(idx).childCount() == 0 and parent.child(idx).checkState(0) == 2:
                     if parent.child(idx).background(0) == QtGui.QColor(100, 255, 100):
-                        listOfCopy
-                    print(os.path.join(path, parent.child(idx).text(0)), parent.background(0))
+                        listOfCopy.append(Item(os.path.join(path, parent.child(idx).text(0)), 1, self.getSource, self.getTarget))
+                    elif parent.child(idx).background(0) == QtGui.QColor(255, 100, 100):
+                        listOfCopy.append(Item(os.path.join(path, parent.child(idx).text(0)), 2, self.getSource, self.getTarget))
                 else:
                     recursiveCheck(parent.child(idx), os.path.join(path, parent.child(idx).text(0)))
         recursiveCheck(self.tree, '')
+
+        self.copyFiles(listOfCopy)
+
+
+
+    def copyFiles(self, listOfFiles):
+        print("Copied!")
 
 
 
@@ -91,11 +99,10 @@ class mywindow(QtWidgets.QMainWindow):
         for f in targetFiles:
             if f in sourceFiles:
                 if os.path.isdir(targetDir + '\\' + f):
-                    item = self.__addfile(Item(os.path.join(targetDir, f)), parent)                     # добавим папку на всякий случай
+                    item = self.__addfile(Item(os.path.join(targetDir, f)), parent)                           # добавим папку на всякий случай
                     changes = True
                     if not self.__compareFiles(os.path.join(sourceDir, f), os.path.join(targetDir, f), item): # а если там нет изменений
-                        parent.removeChild(item) 
-                        print(item.text(0))                             # то удаляем нахер эту грёбанную папку!
+                        parent.removeChild(item)                                                              # то удаляем нахер эту грёбанную папку!
                         changes = False
                 sourceFiles.remove(f)
             else:
