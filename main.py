@@ -54,12 +54,10 @@ class ClassCopyFiles(QtCore.QObject):
  
     # метод, который будет выполнять алгоритм в другом потоке
     def run(self):
-        import time
         from shutil import copy2
         for i, file in enumerate(self.listOfCopy):
             self.amount.emit(int(i*100/len(self.listOfCopy)))
             print(int(1*100/len(self.listOfCopy)))
-            time.sleep(0.5)
             if file.root == self.sourceDir:
                 if os.path.isdir(os.path.join(file.root, file.path)):
                     os.makedirs(os.path.join(self.targetDir, file.path))
