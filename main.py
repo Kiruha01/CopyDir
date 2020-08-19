@@ -44,6 +44,7 @@ class Item:
 class ClassCopyFiles(QtCore.QObject):
     running = False
     done = QtCore.pyqtSignal()
+    amount = QtCore.pyqtSignal(int)
     
     def __init__(self, listOfCopy, sourceDir, targetDir):
         super(ClassCopyFiles, self).__init__()
@@ -53,8 +54,12 @@ class ClassCopyFiles(QtCore.QObject):
  
     # метод, который будет выполнять алгоритм в другом потоке
     def run(self):
+        import time
         from shutil import copy2
-        for file in self.listOfCopy:
+        for i, file in enumerate(self.listOfCopy):
+            self.amount.emit(int(i*100/len(self.listOfCopy)))
+            print(int(1*100/len(self.listOfCopy)))
+            time.sleep(0.5)
             if file.root == self.sourceDir:
                 if os.path.isdir(os.path.join(file.root, file.path)):
                     os.makedirs(os.path.join(self.targetDir, file.path))
@@ -69,6 +74,87 @@ class ClassCopyFiles(QtCore.QObject):
                     os.remove(os.path.join(file.root, file.path))
         self.done.emit()
         print("Copied!")
+
+
+
+class ClassResearchFiles(QtCore.QObject):
+    running = False
+    done = QtCore.pyqtSignal(list)
+    info = QtCore.pyqtSignal(str)
+    
+    def __init__(self, sourceDir, targetDir):
+        super(ClassResearchFiles, self).__init__()
+        self.sourceDir = sourceDir
+        self.targetDir = targetDir
+ 
+    # метод, который будет выполнять алгоритм в другом потоке
+
+    def NloadAll(self, startpath, num):
+        lst = []
+        try:
+            ld = os.listdir(startpath)
+            for element in ld:
+                path_info = os.path.join(startpath, element)
+                if os.path.isdir(path_info):
+                    lst.append([Item(path_info, num),])
+                    lst[-1].extend(self.NloadAll(path_info, num))
+                else:
+                    lst.append(Item(path_info, num))
+        except PermissionError:
+            return []
+        except FileNotFoundError:
+            return []
+        return lst
+
+
+    def test(self, sourceDir, targetDir):
+        try:
+            sourceFiles = os.listdir(sourceDir)
+            targetFiles = os.listdir(targetDir)
+        except PermissionError:
+            return []
+        except  FileNotFoundError:
+            return []
+
+        lst = []
+
+
+        for f in targetFiles:
+            self.info.emit(os.path.join(targetDir, f))
+            if f in sourceFiles:
+                if os.path.isdir(targetDir + '\\' + f):
+                    #item = self.__addfile(Item(os.path.join(targetDir, f)), parent)                           # добавим папку на всякий случай
+                    lst.append([Item(os.path.join(targetDir, f)),])
+                    res = self.test(os.path.join(sourceDir, f), os.path.join(targetDir, f))
+                    if not res: # а если там нет изменений
+                        lst.pop(-1)                                                              # то удаляем нахер эту грёбанную папку!
+                    else:
+                        lst[-1].extend(res)
+                sourceFiles.remove(f)
+            else:
+
+                if os.path.isdir(os.path.join(targetDir, f)):
+                    lst.append([Item(os.path.join(targetDir, f), 1),])
+                    lst[-1].extend(self.NloadAll(os.path.join(targetDir, f), 1))
+                else:
+                    lst.append(Item(os.path.join(targetDir, f), 1))
+                
+        for f in sourceFiles:
+            self.info.emit(os.path.join(sourceDir, f))
+            if os.path.isdir(os.path.join(sourceDir, f)):
+                lst.append([Item(os.path.join(sourceDir, f), 2),])
+                lst[-1].extend(self.NloadAll(os.path.join(sourceDir, f), 2))
+            else:
+                lst.append(Item(os.path.join(sourceDir, f), 2))
+
+        return lst
+
+
+    def run(self):
+        lst = self.test(self.sourceDir, self.targetDir)
+        print("Researhed!")
+        self.done.emit(lst)
+
 
  
 class mywindow(QtWidgets.QMainWindow):
@@ -139,18 +225,25 @@ class mywindow(QtWidgets.QMainWindow):
         self.coping.moveToThread(self.thread)
         # после чего подключим все сигналы и слоты
         self.coping.done.connect(self.finish)
+        self.coping.amount.connect(self.setProgress)
         # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
         self.thread.started.connect(self.coping.run)
         # запустим поток
         self.thread.start()
         self.ui.okbut.setEnabled(False)
         self.ui.treeWidget.setEnabled(False)
+        self.ui.progressBar.show()
         self.statusBar().showMessage('Идёт процесс копирования...')
+
 
 
     def finish(self):
         self.statusBar().showMessage('Завершено!')
+        self.ui.progressBar.setProperty("value", 100)
 
+    
+    def setProgress(self, am):
+        self.ui.progressBar.setProperty("value", am)
 
 
 
@@ -161,37 +254,38 @@ class mywindow(QtWidgets.QMainWindow):
             parent:    родитель элемента
 
         """
+        from random import choice
+        self.ui.say.setText(choice([
+            "Ждать — значит обгонять, значит чувствовать время и настоящее не как дар, а как препятствие. (c)",
+            "Науке пока неизвестно, сколько может ждать человек. (c)",
+            "Как бы ни было коротко время ожидания, оно растягивается, когда находишься в неизвестности. (c)",
+            "Ожидай всегда самого худшего, и тогда будет тебе приятный сюрприз. (c)",
+            "Ждать невозможно лишь тогда, когда ничего не делаешь. (c)",
+            "Ожидание счастливых дней бывает иногда лучше этих самых дней. (c)",
+            "Нетерпение — ожидание в спешке. (c)",
+            "Ожидание радости тоже есть радость. (c)",
+            "Человек жив, пока ждет. (c)",
+            "Живут — ожидая хорошего, а если нечего ждать — какая жизнь? (c)",
+            "Страх ожидания — одна из самых тяжких мук человеческих. (c)"]))
+        self.thread2 = QtCore.QThread()
+        # создадим объект для выполнения кода в другом потоке
+        self.research = ClassResearchFiles(sourceDir, targetDir)
+        # перенесём объект в другой поток
+        self.research.moveToThread(self.thread2)
+        # после чего подключим все сигналы и слоты
+        self.research.done.connect(self.startAdding)
+        self.research.info.connect(self.printInfo)
+        # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
+        self.thread2.started.connect(self.research.run)
+        # запустим поток
+        self.thread2.start()
+        self.statusBar().showMessage('Идёт процесс cscan...')
 
-        changes = False # флаг на изменения 
-        try:
-            sourceFiles = os.listdir(sourceDir)
-            targetFiles = os.listdir(targetDir)
-        except PermissionError:
-            return False
-        except  FileNotFoundError:
-            return False
 
-        for f in targetFiles:
-            if f in sourceFiles:
-                if os.path.isdir(targetDir + '\\' + f):
-                    item = self.__addfile(Item(os.path.join(targetDir, f)), parent)                           # добавим папку на всякий случай
-                    changes = True
-                    if not self.__compareFiles(os.path.join(sourceDir, f), os.path.join(targetDir, f), item): # а если там нет изменений
-                        parent.removeChild(item)                                                              # то удаляем нахер эту грёбанную папку!
-                        changes = False
-                sourceFiles.remove(f)
-            else:
-                item = self.__addfile(Item(os.path.join(targetDir, f), 1), parent)
-                if os.path.isdir(os.path.join(targetDir, f)):
-                    self.loadAll(os.path.join(targetDir, f), item, 1)
-                changes = True
-                
-        for f in sourceFiles:
-            item = self.__addfile(Item(os.path.join(sourceDir, f), 2), parent)
-            if os.path.isdir(os.path.join(sourceDir, f)):
-                    self.loadAll(os.path.join(sourceDir, f), item, 2)
-            changes = True
-        return changes
+    def printInfo(self, inf):
+       # print(inf)
+        self.ui.logging.appendPlainText(inf)
+
 
     def __addfile(self, file, parent):
         """ file:   instance of Item
@@ -207,6 +301,21 @@ class mywindow(QtWidgets.QMainWindow):
         item.setIcon(0, QIcon(file.type))
         item.setExpanded(True)
         return item
+
+
+    def startAdding(self, lst):
+        self.statusBar().showMessage('Идёт процесс построения дерева. Пожалуйста, подождите...')
+        self.parseAndAdd(lst, self.tree)
+        self.ui.stackedWidget.setCurrentIndex(2)
+        self.statusBar().showMessage('')
+
+    def parseAndAdd(self, lst, parent): # [ 1.txt, 2.txt, [New folder, 3.txt, 4.txt], 5.txt, [New folder 2]]
+        for x in lst:
+            if type(x) is list:
+                item = self.__addfile(x[0], parent)
+                self.parseAndAdd(x[1:], item)
+            else:
+                item = self.__addfile(x, parent)
 
     def foo(self, item, col):
         if item.checkState(col) == 0:

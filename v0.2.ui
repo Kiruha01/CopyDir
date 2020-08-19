@@ -132,7 +132,59 @@
      <property name="plainText">
       <string>Эта утилита предназначена для копирования недостающих файлов из исходной папки в целевую.
 
-! Если папки большие, программа не будет отвечать, но она работает. Не закрывайте ёё !</string>
+</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_3">
+    <widget class="QPlainTextEdit" name="logging">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>90</y>
+       <width>651</width>
+       <height>431</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>381</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Идёт процесс сканирования. Пожалуйста, подождите</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="say">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>630</y>
+       <width>631</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(54, 54, 54);</string>
+     </property>
+     <property name="text">
+      <string>Умная цитата про ожидание (с)</string>
      </property>
     </widget>
    </widget>
@@ -145,6 +197,11 @@
        <width>701</width>
        <height>401</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
@@ -202,6 +259,19 @@
      </property>
      <property name="text">
       <string>Выберете галочкой файлы, которые необходимо оставить в целевой папке и нажмите ok</string>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>610</y>
+       <width>561</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>24</number>
      </property>
     </widget>
    </widget>
