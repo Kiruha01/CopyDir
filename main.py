@@ -68,6 +68,7 @@ class ClassCopyFiles(QtCore.QObject):
                 else:
                     os.remove(os.path.join(file.root, file.path))
         self.done.emit()
+        print("Copied!")
 
  
 class mywindow(QtWidgets.QMainWindow):
@@ -149,7 +150,7 @@ class mywindow(QtWidgets.QMainWindow):
 
     def finish(self):
         self.statusBar().showMessage('Завершено!')
-        print("Copied!")
+
 
 
 
@@ -234,15 +235,15 @@ class mywindow(QtWidgets.QMainWindow):
     def loadAll(self, startpath, tree, num):
         try:
             ld = os.listdir(startpath)
+            for element in ld:
+                path_info = os.path.join(startpath, element)
+                parent_itm = self.__addfile(Item(path_info, num), tree)
+                if os.path.isdir(path_info):
+                    self.loadAll(path_info, parent_itm, num)
         except PermissionError:
             return
-        except  FileNotFoundError:
+        except FileNotFoundError:
             return
-        for element in ld:
-            path_info = os.path.join(startpath, element)
-            parent_itm = self.__addfile(Item(path_info, num), tree)
-            if os.path.isdir(path_info):
-                self.loadAll(path_info, parent_itm, num)
 
 
 
